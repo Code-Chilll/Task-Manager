@@ -1,14 +1,48 @@
-export default function EditTask({ params }) {
+'use client';
+import {useEffect, useState} from 'react';
+import {useRouter, useParams} from 'next/navigation';
+
+export default function EditTask() {
   // In a real app, you would fetch the task data based on params.id
-  const taskId = params?.id || '1';
-  
-  // Sample task data for editing
-  const sampleTask = {
-    task_id: taskId,
-    task_name: "Complete project proposal",
-    task_description: "Write and submit the Q2 project proposal",
-    status: "In Progress"
+  const router = useRouter();
+  const params = useParams();
+  const taskId = params.id;
+  const [task, setTask] = useState({name:'', completed: false, description:''});
+
+  useEffect(() => {
+    fetch(`http://localhost:8080/tasks`)
+        .then(res => res.json())
+        .then(data => {
+          const found = data.find(t => String(t.id) === String(taskId));
+          if(found) setTask(found);
+        });
+    }, [taskId]);
+
+  const handleChange = (e) => {
+    const{name, value, type, checked} = e.target;
+    setTask(prev =>({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await fetch(`http://localhost:8080/tasks/${taskId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(task)
+    });
+    router.push('/tasks');
+  };
+
+  const handleDelete = async () => {
+    await fetch(`http://localhost:8080/tasks/${taskId}`, {
+        method: 'DELETE'
+    });
+    router.push('/tasks');
+  };
+
 
   return (
     <div className="min-h-screen">
@@ -19,7 +53,7 @@ export default function EditTask({ params }) {
         </div>
 
         <div>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div>
               <label htmlFor="task_name" className="block">
                 Task Name *
@@ -27,11 +61,12 @@ export default function EditTask({ params }) {
               <input
                 type="text"
                 id="task_name"
-                name="task_name"
+                name="name"
                 required
-                defaultValue={sampleTask.task_name}
                 className="w-full"
                 placeholder="Enter task name"
+                value={task.name}
+                onChange={handleChange}
               />
             </div>
 
@@ -41,29 +76,28 @@ export default function EditTask({ params }) {
               </label>
               <textarea
                 id="task_description"
-                name="task_description"
+                name="description"
                 rows={4}
-                defaultValue={sampleTask.task_description}
                 className="w-full"
                 placeholder="Enter task description"
+                value={task.description}
+                onChange={handleChange}
               />
             </div>
 
             <div>
-              <label htmlFor="status" className="block">
-                Status
+              <label htmlFor="completed" className="block">
+                Completed
               </label>
-              <select
-                id="status"
-                name="status"
-                defaultValue={sampleTask.status}
-                className="w-full"
-              >
-                <option value="Pending">Pending</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
-              </select>
+              <input
+                  type="checkbox"
+                  id="completed"
+                  name="completed"
+                  checked={task.completed}
+                  onChange={handleChange}
+              />
             </div>
+
 
             <div className="flex">
               <button
@@ -85,7 +119,7 @@ export default function EditTask({ params }) {
         <div>
           <h3>Danger Zone</h3>
           <p>Deleting a task is permanent and cannot be undone.</p>
-          <button>
+          <button onClick={handleDelete}>
             Delete Task
           </button>
         </div>

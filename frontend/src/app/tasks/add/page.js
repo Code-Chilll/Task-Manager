@@ -1,4 +1,26 @@
+'use client';
+import {useState} from 'react';
+import {useRouter} from 'next/navigation';
+
 export default function AddTask() {
+
+  const router = useRouter();
+  const [task, setTask] = useState({
+    name: '',
+    description: '',
+    completed: false,
+  });
+
+  const handleSubmit = async(e) => {
+    e.preventDefault();
+    await fetch('http://localhost:8080/tasks', {
+      method:'POST',
+      headers:{'Content-Type': 'application/json'},
+      body:JSON.stringify(task)
+    });
+    router.push('/tasks');
+  };
+
   return (
     <div className="min-h-screen">
       <div className="max-w-2xl mx-auto">
@@ -8,7 +30,7 @@ export default function AddTask() {
         </div>
 
         <div>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div>
               <label htmlFor="task_name" className="block">
                 Task Name *
@@ -20,6 +42,8 @@ export default function AddTask() {
                 required
                 className="w-full"
                 placeholder="Enter task name"
+                value={task.task_name}
+                onChange={(e) => setTask({...task, name: e.target.value})}
               />
             </div>
 
@@ -33,6 +57,8 @@ export default function AddTask() {
                 rows={4}
                 className="w-full"
                 placeholder="Enter task description"
+                value={task.task_description}
+                onChange={(e) => setTask({...task, description: e.target.value})}
               />
             </div>
 
@@ -44,6 +70,7 @@ export default function AddTask() {
                 id="status"
                 name="status"
                 className="w-full"
+                onChange={(e) => setTask({...task, status: e.target.value=== 'Completed'})}
               >
                 <option value="Pending">Pending</option>
                 <option value="In Progress">In Progress</option>

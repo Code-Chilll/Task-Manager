@@ -1,10 +1,23 @@
+'use client';
+import {useEffect, useState} from 'react';
+
 export default function Tasks() {
   // Sample task data for display
-  const sampleTasks = [
-    { task_id: 1, task_name: "Complete project proposal", task_description: "Write and submit the Q2 project proposal", status: "In Progress" },
-    { task_id: 2, task_name: "Review code changes", task_description: "Review pull requests from team members", status: "Pending" },
-    { task_id: 3, task_name: "Update documentation", task_description: "Update API documentation with new endpoints", status: "Completed" },
-  ];
+  const[tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:8080/tasks')
+        .then(res => res.json())
+        .then(data => setTasks(data))
+        .catch(err => console.error('Error fetching tasks:', err));
+  }, []);
+
+  const deleteTask = async(id) => {
+    await fetch(`http://localhost:8080/tasks/${id}`, {
+      method:'DELETE'
+    });
+    setTasks(tasks.filter(task => task.id !== id));
+  }
 
   return (
     <div className="min-h-screen">
@@ -17,18 +30,18 @@ export default function Tasks() {
         </div>
 
         <div>
-          {sampleTasks.map((task) => (
-            <div key={task.task_id}>
+          {tasks.map((task) => (
+            <div key={task.id}>
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h2>{task.task_name}</h2>
                   <p>{task.task_description}</p>
                 </div>
                 <div className="flex">
-                  <a href={`/tasks/edit/${task.task_id}`}>
+                  <a href={`/tasks/edit/${task.id}`}>
                     Edit
                   </a>
-                  <button>
+                  <button onClick={() => deleteTask(task.id)}>
                     Delete
                   </button>
                 </div>
@@ -44,7 +57,7 @@ export default function Tasks() {
           ))}
         </div>
 
-        {sampleTasks.length === 0 && (
+        {tasks.length === 0 && (
           <div className="text-center">
             <h3>No tasks found</h3>
             <p>Get started by creating your first task.</p>
