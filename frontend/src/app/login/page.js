@@ -1,80 +1,73 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 export default function Login() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
-      <div className="w-full max-w-md">
-        <div>
-          <h1 className="text-center">Sign In</h1>
-          <p className="text-center">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Sign In</CardTitle>
+          <CardDescription>
             Sign in to your Task Manager account
-          </p>
-        </div>
-        
-        <form>
-          <div>
-            <div>
-              <label htmlFor="email" className="block">
-                Email Address
-              </label>
-              <input
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
                 id="email"
                 name="email"
                 type="email"
                 required
-                className="block w-full"
                 placeholder="Enter your email"
               />
             </div>
             
-            <div>
-              <label htmlFor="password" className="block">
-                Password
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 required
-                className="block w-full"
                 placeholder="Enter your password"
               />
             </div>
-          </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-              />
-              <label htmlFor="remember-me">
-                Remember me
-              </label>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+                <Label htmlFor="remember-me" className="text-sm">
+                  Remember me
+                </Label>
+              </div>
+
+              <Link href="#" className="text-sm text-slate-600 hover:text-slate-900">
+                Forgot password?
+              </Link>
             </div>
 
-            <div>
-              <a href="#">
-                Forgot your password?
-              </a>
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="w-full flex justify-center"
-            >
+            <Button type="submit" className="w-full">
               Sign In
-            </button>
-          </div>
-          
-          <div className="text-center">
-            <a href="/signup">
-              Don't have an account? Sign up
-            </a>
-          </div>
-        </form>
-      </div>
+            </Button>
+            
+            <div className="text-center text-sm">
+              <Link href="/signup" className="text-slate-600 hover:text-slate-900">
+                Don't have an account? Sign up
+              </Link>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

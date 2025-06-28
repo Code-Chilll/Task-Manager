@@ -1,75 +1,66 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 export default function Signup() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
-      <div className="w-full max-w-md">
-        <div>
-          <h1 className="text-center">Sign Up</h1>
-          <p className="text-center">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Sign Up</CardTitle>
+          <CardDescription>
             Create your Task Manager account
-          </p>
-        </div>
-        
-        <form>
-          <div>
-            <div>
-              <label htmlFor="name" className="block">
-                Full Name
-              </label>
-              <input
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
                 id="name"
                 name="name"
                 type="text"
                 required
-                className="block w-full"
                 placeholder="Enter your full name"
               />
             </div>
             
-            <div>
-              <label htmlFor="email" className="block">
-                Email Address
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
                 id="email"
                 name="email"
                 type="email"
                 required
-                className="block w-full"
                 placeholder="Enter your email"
               />
             </div>
             
-            <div>
-              <label htmlFor="password" className="block">
-                Password
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 required
-                className="block w-full"
                 placeholder="Enter your password"
               />
             </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              className="w-full flex justify-center"
-            >
+            <Button type="submit" className="w-full">
               Sign Up
-            </button>
-          </div>
-          
-          <div className="text-center">
-            <a href="/login">
-              Already have an account? Sign in
-            </a>
-          </div>
-        </form>
-      </div>
+            </Button>
+            
+            <div className="text-center text-sm">
+              <Link href="/login" className="text-slate-600 hover:text-slate-900">
+                Already have an account? Sign in
+              </Link>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

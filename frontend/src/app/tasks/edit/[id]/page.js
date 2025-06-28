@@ -1,128 +1,134 @@
 'use client';
 import {useEffect, useState} from 'react';
 import {useRouter, useParams} from 'next/navigation';
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function EditTask() {
-  // In a real app, you would fetch the task data based on params.id
   const router = useRouter();
   const params = useParams();
   const taskId = params.id;
-  const [task, setTask] = useState({name:'', completed: false, description:''});
+  const [task, setTask] = useState({
+    task_name: '',
+    task_description: '',
+    status: 'Pending'
+  });
 
   useEffect(() => {
-    fetch(`http://localhost:8080/tasks`)
-        .then(res => res.json())
-        .then(data => {
-          const found = data.find(t => String(t.id) === String(taskId));
-          if(found) setTask(found);
-        });
-    }, [taskId]);
+    const sampleTask = {
+      task_id: taskId,
+      task_name: "Complete project proposal",
+      task_description: "Write and submit the Q2 project proposal",
+      status: "In Progress"
+    };
+    setTask(sampleTask);
+  }, [taskId]);
 
   const handleChange = (e) => {
-    const{name, value, type, checked} = e.target;
-    setTask(prev =>({
+    const { name, value } = e.target;
+    setTask(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleStatusChange = (value) => {
+    setTask(prev => ({
+      ...prev,
+      status: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    await fetch(`http://localhost:8080/tasks/${taskId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(task)
-    });
     router.push('/tasks');
   };
 
-  const handleDelete = async () => {
-    await fetch(`http://localhost:8080/tasks/${taskId}`, {
-        method: 'DELETE'
-    });
+  const handleDelete = () => {
     router.push('/tasks');
   };
-
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-2xl mx-auto">
-        <div>
-          <h1>Edit Task</h1>
-          <p>Update your task information.</p>
-        </div>
-
-        <div>
-          <form onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="task_name" className="block">
-                Task Name *
-              </label>
-              <input
-                type="text"
-                id="task_name"
-                name="name"
-                required
-                className="w-full"
-                placeholder="Enter task name"
-                value={task.name}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="task_description" className="block">
-                Task Description
-              </label>
-              <textarea
-                id="task_description"
-                name="description"
-                rows={4}
-                className="w-full"
-                placeholder="Enter task description"
-                value={task.description}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="completed" className="block">
-                Completed
-              </label>
-              <input
-                  type="checkbox"
-                  id="completed"
-                  name="completed"
-                  checked={task.completed}
+    <div className="min-h-screen p-6 bg-slate-50">
+      <div className="max-w-2xl mx-auto space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">Edit Task</CardTitle>
+            <CardDescription>
+              Update your task information.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="task_name">Task Name *</Label>
+                <Input
+                  id="task_name"
+                  name="task_name"
+                  type="text"
+                  required
+                  placeholder="Enter task name"
+                  value={task.task_name}
                   onChange={handleChange}
-              />
-            </div>
+                />
+              </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="task_description">Task Description</Label>
+                <Textarea
+                  id="task_description"
+                  name="task_description"
+                  rows={4}
+                  placeholder="Enter task description"
+                  value={task.task_description}
+                  onChange={handleChange}
+                />
+              </div>
 
-            <div className="flex">
-              <button
-                type="submit"
-                className="flex-1"
-              >
-                Update Task
-              </button>
-              <a
-                href="/tasks"
-                className="flex-1 text-center"
-              >
-                Cancel
-              </a>
-            </div>
-          </form>
-        </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={task.status} onValueChange={handleStatusChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="In Progress">In Progress</SelectItem>
+                    <SelectItem value="Completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        <div>
-          <h3>Danger Zone</h3>
-          <p>Deleting a task is permanent and cannot be undone.</p>
-          <button onClick={handleDelete}>
-            Delete Task
-          </button>
-        </div>
+              <div className="flex gap-4 pt-4">
+                <Button type="submit" className="flex-1">
+                  Update Task
+                </Button>
+                <Button variant="outline" asChild className="flex-1">
+                  <Link href="/tasks">Cancel</Link>
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card className="border-red-200">
+          <CardHeader>
+            <CardTitle className="text-lg text-red-800">Danger Zone</CardTitle>
+            <CardDescription className="text-red-600">
+              Deleting a task is permanent and cannot be undone.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete Task
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
