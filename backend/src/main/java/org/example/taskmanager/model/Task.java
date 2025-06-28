@@ -1,9 +1,8 @@
 package org.example.taskmanager.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 public class Task {
@@ -14,6 +13,11 @@ public class Task {
     private String name;
     private String description;
     private boolean completed;
+    private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name="user_email", referencedColumnName ="email")
+    private User user;
 
     public Long getId(){
         return id;
@@ -41,5 +45,17 @@ public class Task {
     }
     public void setCompleted(boolean completed){
         this.completed = completed;
+    }
+
+    @PrePersist
+    protected void onCreate(){
+        createdAt = LocalDateTime.now();
+    }
+
+    public User getUser(){
+        return user;
+    }
+    public void setUser(User user){
+        this.user = user;
     }
 }
