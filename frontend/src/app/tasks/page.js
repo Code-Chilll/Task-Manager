@@ -1,36 +1,53 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Tasks() {
   const [tasks, setTasks] = useState([]);
+  const [userEmail, setUserEmail] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
-    const sampleTasks = [
-      { id: 1, task_name: "Complete project proposal", task_description: "Write and submit the Q2 project proposal", status: "In Progress" },
-      { id: 2, task_name: "Review code changes", task_description: "Review pull requests from team members", status: "Pending" },
-      { id: 3, task_name: "Update documentation", task_description: "Update API documentation with new endpoints", status: "Completed" },
-    ];
-    setTasks(sampleTasks);
+    // Get user email from localStorage (set during login)
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      router.push('/login');
+      return;
+    }
+    setUserEmail(email);
+    fetchTasks(email);
   }, []);
 
-  const deleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id));
+  const fetchTasks = async (email) => {
+    try {
+      const response = await fetch(`http://localhost:8080/tasks?userEmail=${encodeURIComponent(email)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setTasks(data);
+      }
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Completed':
-        return 'bg-green-100 text-green-800';
-      case 'In Progress':
-        return 'bg-blue-100 text-blue-800';
-      case 'Pending':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-slate-100 text-slate-800';
+  const deleteTask = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:8080/tasks/${id}?userEmail=${encodeURIComponent(userEmail)}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setTasks(tasks.filter(task => task.id !== id));
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error);
     }
+  };
+
+  const getStatusColor = (completed) => {
+    return completed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
   };
 
   return (
@@ -52,9 +69,9 @@ export default function Tasks() {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <CardTitle className="text-xl">{task.task_name}</CardTitle>
+                    <CardTitle className="text-xl">{task.name}</CardTitle>
                     <CardDescription className="mt-1">
-                      {task.task_description}
+                      {task.description}
                     </CardDescription>
                   </div>
                   <div className="flex space-x-2 ml-4">
@@ -70,8 +87,8 @@ export default function Tasks() {
               <CardContent>
                 <div className="flex items-center">
                   <span className="text-sm font-medium text-slate-700 mr-2">Status:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
-                    {task.status}
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.completed)}`}>
+                    {task.completed ? 'Completed' : 'Pending'}
                   </span>
                 </div>
               </CardContent>

@@ -20,36 +20,47 @@ public class TaskController {
     private UserRepository userRepository;
 
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public List<Task> getAllTasks(@RequestParam String userEmail) {
+        return taskRepository.findByUserEmail(userEmail);
     }
 
     @PostMapping
-    public Task addTask(@RequestBody Task task) {
-        if (task.getUser() != null) {
-            User existingUser = userRepository.findByEmail(task.getUser().getEmail());
-            if (existingUser != null) {
-                task.setUser(existingUser);
-            } else {
-                throw new RuntimeException("User does not exist.");
-            }
+    public Task addTask(@RequestBody Task task, @RequestParam String userEmail) {
+        // Find the user and set it on the task
+        User existingUser = userRepository.findByEmail(userEmail);
+        if (existingUser != null) {
+            task.setUser(existingUser);
+        } else {
+            throw new RuntimeException("User does not exist.");
         }
         return taskRepository.save(task);
     }
 
     @PutMapping("/{id}")
-    public Task updateTask(@PathVariable Long id, @RequestBody Task task) {
-        Task exsistingTask = taskRepository.findById(id).orElseThrow();
-        exsistingTask.setName(task.getName());
-        exsistingTask.setDescription(task.getDescription());
-        exsistingTask.setCompleted(task.isCompleted());
-        exsistingTask.setUser(task.getUser());
+    public Task updateTask(@PathVariable Long id, @RequestBody Task task, @RequestParam String userEmail) {
+        Task existingTask = taskRepository.findById(id).orElseThrow();
+        
+        // Verify the task belongs to the user
+        if (!existingTask.getUser().getEmail().equals(userEmail)) {
+            throw new RuntimeException("Unauthorized to update this task.");
+        }
+        
+        existingTask.setName(task.getName());
+        existingTask.setDescription(task.getDescription());
+        existingTask.setCompleted(task.isCompleted());
 
-        return taskRepository.save(exsistingTask);
+        return taskRepository.save(existingTask);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTask(@PathVariable Long id) {
+    public void deleteTask(@PathVariable Long id, @RequestParam String userEmail) {
+        Task existingTask = taskRepository.findById(id).orElseThrow();
+        
+        // Verify the task belongs to the user
+        if (!existingTask.getUser().getEmail().equals(userEmail)) {
+            throw new RuntimeException("Unauthorized to delete this task.");
+        }
+        
         taskRepository.deleteById(id);
     }
 

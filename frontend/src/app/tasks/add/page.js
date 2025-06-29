@@ -1,3 +1,6 @@
+'use client';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +10,44 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function AddTask() {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [completed, setCompleted] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      router.push('/login');
+      return;
+    }
+    setUserEmail(email);
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch(`http://localhost:8080/tasks?userEmail=${encodeURIComponent(userEmail)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          description,
+          completed,
+        }),
+      });
+
+      if (response.ok) {
+        router.push('/tasks');
+      }
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
+  };
   return (
     <div className="min-h-screen p-6 bg-slate-50">
       <div className="max-w-2xl mx-auto">
@@ -18,7 +59,7 @@ export default function AddTask() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Task Name *</Label>
                 <Input
@@ -26,6 +67,8 @@ export default function AddTask() {
                   name="name"
                   type="text"
                   required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="Enter task name"
                 />
               </div>
@@ -36,20 +79,21 @@ export default function AddTask() {
                   id="description"
                   name="description"
                   rows={4}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   placeholder="Enter task description"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="completed">Status</Label>
-                <Select name="completed" defaultValue="Pending">
+                <Select value={completed.toString()} onValueChange={(value) => setCompleted(value === 'true')}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select completed" />
+                    <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
-                    <SelectItem value="Completed">Completed</SelectItem>
+                    <SelectItem value="false">Pending</SelectItem>
+                    <SelectItem value="true">Completed</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
