@@ -1,6 +1,6 @@
 'use client';
-import {useEffect, useState} from 'react';
-import {useRouter, useParams} from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getUserEmail, isAuthenticated } from "@/lib/auth";
 
 export default function EditTask() {
   const router = useRouter();
@@ -16,18 +17,34 @@ export default function EditTask() {
   const [task, setTask] = useState({
     name: '',
     description: '',
-    completed: 'Pending'
+    completed: false
   });
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const sampleTask = {
-      task_id: taskId,
-      name: "Complete project proposal",
-      description: "Write and submit the Q2 project proposal",
-      completed: "In Progress"
-    };
-    setTask(sampleTask);
-  }, [taskId]);
+    // Check authentication
+    if (!isAuthenticated()) {
+      router.push('/login');
+      return;
+    }
+
+    fetchTask();
+  }, [taskId, router]);
+
+  const fetchTask = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/tasks/${taskId}`);
+      const data = await response.json();
+      setTask(data);
+    } catch (error) {
+      setError('Failed to load task');
+      console.error('Fetch task error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,18 +57,53 @@ export default function EditTask() {
   const handleStatusChange = (value) => {
     setTask(prev => ({
       ...prev,
-      completed: value
+      completed: value === 'true'
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    router.push('/tasks');
+    setSubmitting(true);
+    setError('');
+
+    try {
+      const taskData = {
+        ...task,
+        email: getUserEmail()
+      };
+      await fetch(`http://localhost:8080/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(taskData),
+      });
+      router.push('/tasks');
+    } catch (error) {
+      setError('Failed to update task. Please try again.');
+      console.error('Update task error:', error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleDelete = () => {
-    router.push('/tasks');
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+      try {
+        await fetch(`http://localhost:8080/tasks/${taskId}`, { method: 'DELETE' });
+        router.push('/tasks');
+      } catch (error) {
+        setError('Failed to delete task. Please try again.');
+        console.error('Delete task error:', error);
+      }
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen p-6 bg-slate-50 flex items-center justify-center">
+        <div>Loading task...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-6 bg-slate-50">
@@ -65,6 +117,12 @@ export default function EditTask() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="text-red-600 text-sm bg-red-50 p-2 rounded">
+                  {error}
+                </div>
+              )}
+              
               <div className="space-y-2">
                 <Label htmlFor="name">Task Name *</Label>
                 <Input
@@ -92,21 +150,20 @@ export default function EditTask() {
 
               <div className="space-y-2">
                 <Label htmlFor="completed">Status</Label>
-                <Select value={task.completed} onValueChange={handleStatusChange}>
+                <Select value={task.completed.toString()} onValueChange={handleStatusChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select completed" />
+                    <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
-                    <SelectItem value="Completed">Completed</SelectItem>
+                    <SelectItem value="false">Pending</SelectItem>
+                    <SelectItem value="true">Completed</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="flex gap-4 pt-4">
-                <Button type="submit" className="flex-1">
-                  Update Task
+                <Button type="submit" className="flex-1" disabled={submitting}>
+                  {submitting ? 'Updating...' : 'Update Task'}
                 </Button>
                 <Button variant="outline" asChild className="flex-1">
                   <Link href="/tasks">Cancel</Link>

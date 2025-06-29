@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getUserEmail, isAuthenticated } from "@/lib/auth";
 
 export default function AddTask() {
+<<<<<<< Updated upstream
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [completed, setCompleted] = useState(false);
@@ -48,6 +50,64 @@ export default function AddTask() {
       console.error('Error creating task:', error);
     }
   };
+=======
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    completed: false
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const userEmail = getUserEmail();
+
+  useEffect(() => {
+    // Check authentication
+    if (!isAuthenticated()) {
+      router.push('/login');
+      return;
+    }
+  }, [router]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleStatusChange = (value) => {
+    setFormData({
+      ...formData,
+      completed: value === 'true'
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const taskData = {
+        ...formData,
+        email: userEmail
+      };
+      await fetch('http://localhost:8080/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(taskData),
+      });
+      router.push('/tasks');
+    } catch (error) {
+      setError('Failed to create task. Please try again.');
+      console.error('Create task error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+>>>>>>> Stashed changes
   return (
     <div className="min-h-screen p-6 bg-slate-50">
       <div className="max-w-2xl mx-auto">
@@ -60,6 +120,15 @@ export default function AddTask() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+<<<<<<< Updated upstream
+=======
+              {error && (
+                <div className="text-red-600 text-sm bg-red-50 p-2 rounded">
+                  {error}
+                </div>
+              )}
+              
+>>>>>>> Stashed changes
               <div className="space-y-2">
                 <Label htmlFor="name">Task Name *</Label>
                 <Input
@@ -70,6 +139,8 @@ export default function AddTask() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter task name"
+                  value={formData.name}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -82,12 +153,18 @@ export default function AddTask() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Enter task description"
+                  value={formData.description}
+                  onChange={handleChange}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="completed">Status</Label>
+<<<<<<< Updated upstream
                 <Select value={completed.toString()} onValueChange={(value) => setCompleted(value === 'true')}>
+=======
+                <Select onValueChange={handleStatusChange} defaultValue="false">
+>>>>>>> Stashed changes
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
@@ -99,8 +176,8 @@ export default function AddTask() {
               </div>
 
               <div className="flex gap-4 pt-4">
-                <Button type="submit" className="flex-1">
-                  Create Task
+                <Button type="submit" className="flex-1" disabled={loading}>
+                  {loading ? 'Creating...' : 'Create Task'}
                 </Button>
                 <Button variant="outline" asChild className="flex-1">
                   <Link href="/tasks">Cancel</Link>

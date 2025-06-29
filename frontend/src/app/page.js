@@ -1,8 +1,21 @@
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { isAuthenticated } from "@/lib/auth";
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect to tasks if already authenticated
+    if (isAuthenticated()) {
+      router.push('/tasks');
+    }
+  }, [router]);
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
       <Card className="w-full max-w-2xl">
@@ -20,14 +33,6 @@ export default function Home() {
             
             <Button asChild variant="outline" size="lg">
               <Link href="/login">Sign In</Link>
-            </Button>
-            
-            <Button asChild variant="secondary" size="lg">
-              <Link href="/tasks">View Tasks</Link>
-            </Button>
-            
-            <Button asChild variant="default" size="lg">
-              <Link href="/tasks/add">Add New Task</Link>
             </Button>
           </div>
         </CardContent>
