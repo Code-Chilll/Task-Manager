@@ -30,6 +30,15 @@ public class UserController {
         return userRepository.findByEmail(email);
     }
 
+    @PostMapping("/login")
+    public String loginUser(@RequestBody User loginRequest) {
+        User user = userRepository.findByEmail(loginRequest.getEmail());
+        if (user != null && user.getPassword().equals(loginRequest.getPassword())) {
+            return "Login successful";
+        }
+        return "Invalid credentials";
+    }
+
     @DeleteMapping("/{email}")
     public void deleteUser(@PathVariable String email) {
         User user = userRepository.findByEmail(email);
