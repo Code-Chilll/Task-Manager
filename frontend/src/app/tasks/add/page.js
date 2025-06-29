@@ -20,10 +20,10 @@ export default function AddTask() {
           <CardContent>
             <form className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="task_name">Task Name *</Label>
+                <Label htmlFor="name">Task Name *</Label>
                 <Input
-                  id="task_name"
-                  name="task_name"
+                  id="name"
+                  name="name"
                   type="text"
                   required
                   placeholder="Enter task name"
@@ -31,20 +31,20 @@ export default function AddTask() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="task_description">Task Description</Label>
+                <Label htmlFor="description">Task Description</Label>
                 <Textarea
-                  id="task_description"
-                  name="task_description"
+                  id="description"
+                  name="description"
                   rows={4}
                   placeholder="Enter task description"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select name="status" defaultValue="Pending">
+                <Label htmlFor="completed">Status</Label>
+                <Select name="completed" defaultValue="Pending">
                   <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder="Select completed" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Pending">Pending</SelectItem>

@@ -14,17 +14,17 @@ export default function EditTask() {
   const params = useParams();
   const taskId = params.id;
   const [task, setTask] = useState({
-    task_name: '',
-    task_description: '',
-    status: 'Pending'
+    name: '',
+    description: '',
+    completed: 'Pending'
   });
 
   useEffect(() => {
     const sampleTask = {
       task_id: taskId,
-      task_name: "Complete project proposal",
-      task_description: "Write and submit the Q2 project proposal",
-      status: "In Progress"
+      name: "Complete project proposal",
+      description: "Write and submit the Q2 project proposal",
+      completed: "In Progress"
     };
     setTask(sampleTask);
   }, [taskId]);
@@ -40,7 +40,7 @@ export default function EditTask() {
   const handleStatusChange = (value) => {
     setTask(prev => ({
       ...prev,
-      status: value
+      completed: value
     }));
   };
 
@@ -66,35 +66,35 @@ export default function EditTask() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="task_name">Task Name *</Label>
+                <Label htmlFor="name">Task Name *</Label>
                 <Input
-                  id="task_name"
-                  name="task_name"
+                  id="name"
+                  name="name"
                   type="text"
                   required
                   placeholder="Enter task name"
-                  value={task.task_name}
+                  value={task.name}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="task_description">Task Description</Label>
+                <Label htmlFor="description">Task Description</Label>
                 <Textarea
-                  id="task_description"
-                  name="task_description"
+                  id="description"
+                  name="description"
                   rows={4}
                   placeholder="Enter task description"
-                  value={task.task_description}
+                  value={task.description}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select value={task.status} onValueChange={handleStatusChange}>
+                <Label htmlFor="completed">Status</Label>
+                <Select value={task.completed} onValueChange={handleStatusChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder="Select completed" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Pending">Pending</SelectItem>

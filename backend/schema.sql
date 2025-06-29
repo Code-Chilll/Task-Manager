@@ -7,8 +7,8 @@ CREATE TABLE users (
 CREATE TABLE tasks (
     task_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(100) REFERENCES users(email) ON DELETE CASCADE,
-    task_name TEXT NOT NULL,
-    task_description TEXT,
-    status BOOLEAN DEFAULT false,
+    name TEXT NOT NULL,
+    description TEXT,
+    completed BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT NOW()
 );

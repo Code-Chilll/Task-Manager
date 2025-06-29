@@ -1,33 +1,30 @@
 package org.example.taskmanager.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "\"user\"")
 public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(nullable = false)
     private String name;
 
+    @Id
     @Column(unique = true, nullable = false)
     private String email;
+
     private String password;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Task> tasks;
-
-    public Long getId() {
-        return id;
-    }
 
     public String getName() {
         return name;
     }
-    public void getName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
