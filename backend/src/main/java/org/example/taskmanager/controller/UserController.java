@@ -20,6 +20,15 @@ public class UserController {
         return userRepository.save(user);
     }
 
+    @PostMapping("/login")
+    public String loginUser(@RequestBody User loginRequest) {
+        User user = userRepository.findByEmail(loginRequest.getEmail());
+        if (user != null && user.getPassword().equals(loginRequest.getPassword())) {
+            return "Login successful";
+        }
+        return "Invalid credentials";
+    }
+
     @GetMapping
     public List<User> getAllUsers() {
         return userRepository.findAll();
