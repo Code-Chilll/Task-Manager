@@ -11,54 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getUserEmail, isAuthenticated } from "@/lib/auth";
 
 export default function AddTask() {
-<<<<<<< Updated upstream
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [completed, setCompleted] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
-  const router = useRouter();
-
-  useEffect(() => {
-    const email = localStorage.getItem('userEmail');
-    if (!email) {
-      router.push('/login');
-      return;
-    }
-    setUserEmail(email);
-  }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch(`http://localhost:8080/tasks?userEmail=${encodeURIComponent(userEmail)}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          description,
-          completed,
-        }),
-      });
-
-      if (response.ok) {
-        router.push('/tasks');
-      }
-    } catch (error) {
-      console.error('Error creating task:', error);
-    }
-  };
-=======
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    completed: false
-  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const router = useRouter();
   const userEmail = getUserEmail();
 
   useEffect(() => {
@@ -69,20 +27,6 @@ export default function AddTask() {
     }
   }, [router]);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleStatusChange = (value) => {
-    setFormData({
-      ...formData,
-      completed: value === 'true'
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -90,24 +34,31 @@ export default function AddTask() {
 
     try {
       const taskData = {
-        ...formData,
-        email: userEmail
+        name,
+        description,
+        completed
       };
-      await fetch('http://localhost:8080/tasks', {
+      
+      const response = await fetch(`http://localhost:8080/tasks?userEmail=${encodeURIComponent(userEmail)}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(taskData),
       });
-      router.push('/tasks');
+
+      if (response.ok) {
+        router.push('/tasks');
+      } else {
+        setError('Failed to create task. Please try again.');
+      }
     } catch (error) {
       setError('Failed to create task. Please try again.');
-      console.error('Create task error:', error);
+      console.error('Error creating task:', error);
     } finally {
       setLoading(false);
     }
   };
-
->>>>>>> Stashed changes
   return (
     <div className="min-h-screen p-6 bg-slate-50">
       <div className="max-w-2xl mx-auto">
@@ -120,15 +71,12 @@ export default function AddTask() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-<<<<<<< Updated upstream
-=======
               {error && (
                 <div className="text-red-600 text-sm bg-red-50 p-2 rounded">
                   {error}
                 </div>
               )}
               
->>>>>>> Stashed changes
               <div className="space-y-2">
                 <Label htmlFor="name">Task Name *</Label>
                 <Input
@@ -139,8 +87,6 @@ export default function AddTask() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter task name"
-                  value={formData.name}
-                  onChange={handleChange}
                 />
               </div>
 
@@ -153,18 +99,12 @@ export default function AddTask() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Enter task description"
-                  value={formData.description}
-                  onChange={handleChange}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="completed">Status</Label>
-<<<<<<< Updated upstream
                 <Select value={completed.toString()} onValueChange={(value) => setCompleted(value === 'true')}>
-=======
-                <Select onValueChange={handleStatusChange} defaultValue="false">
->>>>>>> Stashed changes
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>

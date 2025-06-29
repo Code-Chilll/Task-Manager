@@ -35,7 +35,7 @@ export default function EditTask() {
 
   const fetchTask = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/tasks/${taskId}`);
+      const response = await fetch(`http://localhost:8080/tasks/${taskId}?userEmail=${encodeURIComponent(getUserEmail())}`);
       const data = await response.json();
       setTask(data);
     } catch (error) {
@@ -68,10 +68,11 @@ export default function EditTask() {
 
     try {
       const taskData = {
-        ...task,
-        email: getUserEmail()
+        name: task.name,
+        description: task.description,
+        completed: task.completed
       };
-      await fetch(`http://localhost:8080/tasks/${taskId}`, {
+      await fetch(`http://localhost:8080/tasks/${taskId}?userEmail=${encodeURIComponent(getUserEmail())}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(taskData),

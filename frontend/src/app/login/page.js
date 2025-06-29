@@ -1,9 +1,5 @@
 'use client';
-<<<<<<< Updated upstream
-import { useState } from 'react';
-=======
 import { useState, useEffect } from 'react';
->>>>>>> Stashed changes
 import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -13,39 +9,6 @@ import { Label } from "@/components/ui/label";
 import { setUserEmail, isAuthenticated } from "@/lib/auth";
 
 export default function Login() {
-<<<<<<< Updated upstream
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    try {
-      const response = await fetch('http://localhost:8080/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Store user email in localStorage
-        localStorage.setItem('userEmail', email);
-        router.push('/tasks');
-      } else {
-        setError(data.message || 'Login failed');
-      }
-    } catch (error) {
-      setError('Network error. Please try again.');
-    }
-  };
-=======
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
@@ -94,8 +57,6 @@ export default function Login() {
       setLoading(false);
     }
   };
-
->>>>>>> Stashed changes
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
       <Card className="w-full max-w-md">
@@ -106,14 +67,6 @@ export default function Login() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-<<<<<<< Updated upstream
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-              {error}
-            </div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-=======
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="text-red-600 text-sm text-center bg-red-50 p-2 rounded">
@@ -121,7 +74,6 @@ export default function Login() {
               </div>
             )}
             
->>>>>>> Stashed changes
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <Input
@@ -129,11 +81,9 @@ export default function Login() {
                 name="email"
                 type="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
+                placeholder="Enter your email"
               />
             </div>
             
@@ -144,11 +94,9 @@ export default function Login() {
                 name="password"
                 type="password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
+                placeholder="Enter your password"
               />
             </div>
 

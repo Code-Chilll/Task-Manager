@@ -9,51 +9,6 @@ import { getUserEmail, logout, isAuthenticated } from "@/lib/auth";
 export default function Tasks() {
   const router = useRouter();
   const [tasks, setTasks] = useState([]);
-<<<<<<< Updated upstream
-  const [userEmail, setUserEmail] = useState('');
-  const router = useRouter();
-
-  useEffect(() => {
-    // Get user email from localStorage (set during login)
-    const email = localStorage.getItem('userEmail');
-    if (!email) {
-      router.push('/login');
-      return;
-    }
-    setUserEmail(email);
-    fetchTasks(email);
-  }, []);
-
-  const fetchTasks = async (email) => {
-    try {
-      const response = await fetch(`http://localhost:8080/tasks?userEmail=${encodeURIComponent(email)}`);
-      if (response.ok) {
-        const data = await response.json();
-        setTasks(data);
-      }
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-    }
-  };
-
-  const deleteTask = async (id) => {
-    try {
-      const response = await fetch(`http://localhost:8080/tasks/${id}?userEmail=${encodeURIComponent(userEmail)}`, {
-        method: 'DELETE',
-      });
-      if (response.ok) {
-        setTasks(tasks.filter(task => task.id !== id));
-      }
-    } catch (error) {
-      console.error('Error deleting task:', error);
-    }
-  };
-
-  const getStatusColor = (completed) => {
-    return completed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
-  };
-
-=======
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const userEmail = getUserEmail();
@@ -71,12 +26,21 @@ export default function Tasks() {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8080/tasks?email=${encodeURIComponent(userEmail)}`);
+      const response = await fetch(`http://localhost:8080/tasks?userEmail=${encodeURIComponent(userEmail)}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
-      setTasks(data);
+      console.log('Tasks response:', data); // Debug log
+      
+      // Ensure data is an array
+      setTasks(Array.isArray(data) ? data : []);
     } catch (error) {
       setError('Failed to load tasks');
       console.error('Fetch tasks error:', error);
+      setTasks([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -84,7 +48,7 @@ export default function Tasks() {
 
   const deleteTask = async (id) => {
     try {
-      await fetch(`http://localhost:8080/tasks/${id}`, { method: 'DELETE' });
+      await fetch(`http://localhost:8080/tasks/${id}?userEmail=${encodeURIComponent(userEmail)}`, { method: 'DELETE' });
       setTasks(tasks.filter(task => task.id !== id));
     } catch (error) {
       setError('Failed to delete task');
@@ -104,7 +68,6 @@ export default function Tasks() {
     );
   }
 
->>>>>>> Stashed changes
   return (
     <div className="min-h-screen p-6 bg-slate-50">
       <div className="max-w-4xl mx-auto">
@@ -131,7 +94,7 @@ export default function Tasks() {
         )}
 
         <div className="space-y-4">
-          {tasks.map((task) => (
+          {Array.isArray(tasks) && tasks.map((task) => (
             <Card key={task.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -154,13 +117,9 @@ export default function Tasks() {
               <CardContent>
                 <div className="flex items-center">
                   <span className="text-sm font-medium text-slate-700 mr-2">Status:</span>
-<<<<<<< Updated upstream
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.completed)}`}>
-=======
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     task.completed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                   }`}>
->>>>>>> Stashed changes
                     {task.completed ? 'Completed' : 'Pending'}
                   </span>
                 </div>
@@ -169,7 +128,7 @@ export default function Tasks() {
           ))}
         </div>
 
-        {tasks.length === 0 && !loading && (
+        {(!Array.isArray(tasks) || tasks.length === 0) && !loading && (
           <Card className="text-center py-12">
             <CardContent>
               <h3 className="text-lg font-medium text-slate-900 mb-2">No tasks found</h3>
