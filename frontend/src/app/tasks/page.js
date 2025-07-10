@@ -16,7 +16,7 @@ export default function Tasks() {
   useEffect(() => {
     // Check authentication
     if (!isAuthenticated()) {
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
 

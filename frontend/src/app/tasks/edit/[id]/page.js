@@ -17,7 +17,9 @@ export default function EditTask() {
   const [task, setTask] = useState({
     name: '',
     description: '',
-    completed: false
+    completed: false,
+    priority: 'medium',
+    lastDate: ''
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -70,14 +72,16 @@ export default function EditTask() {
       const taskData = {
         name: task.name,
         description: task.description,
-        completed: task.completed
+        completed: task.completed,
+        priority: task.priority,
+        lastDate: task.lastDate
       };
       await fetch(`http://localhost:8080/tasks/${taskId}?userEmail=${encodeURIComponent(getUserEmail())}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(taskData),
       });
-      router.push('/tasks');
+      window.location.href = '/tasks';
     } catch (error) {
       setError('Failed to update task. Please try again.');
       console.error('Update task error:', error);
@@ -90,7 +94,7 @@ export default function EditTask() {
     if (window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
       try {
         await fetch(`http://localhost:8080/tasks/${taskId}`, { method: 'DELETE' });
-        router.push('/tasks');
+        window.location.href = '/tasks';
       } catch (error) {
         setError('Failed to delete task. Please try again.');
         console.error('Delete task error:', error);
@@ -146,6 +150,32 @@ export default function EditTask() {
                   placeholder="Enter task description"
                   value={task.description}
                   onChange={handleChange}
+                />
+              </div>
+
+
+              <div className="space-y-2">
+                <Label htmlFor="priority">Priority</Label>
+                <Select value={task.priority} onValueChange={value => setTask(prev => ({ ...prev, priority: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="lastDate">Last Date</Label>
+                <Input
+                  id="lastDate"
+                  name="lastDate"
+                  type="date"
+                  value={task.lastDate}
+                  onChange={e => setTask(prev => ({ ...prev, lastDate: e.target.value }))}
                 />
               </div>
 
