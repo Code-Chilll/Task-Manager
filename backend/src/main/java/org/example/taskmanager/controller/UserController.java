@@ -9,7 +9,6 @@ import java.util.List;
 
 @RequestMapping("/users")
 @RestController
-@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
@@ -18,6 +17,15 @@ public class UserController {
     @PostMapping
     public User createUser(@RequestBody User user) {
         return userRepository.save(user);
+    }
+
+    @PostMapping("/login")
+    public String loginUser(@RequestBody User loginRequest) {
+        User user = userRepository.findByEmail(loginRequest.getEmail());
+        if (user != null && user.getPassword().equals(loginRequest.getPassword())) {
+            return "Login successful";
+        }
+        return "Invalid credentials";
     }
 
     @GetMapping
