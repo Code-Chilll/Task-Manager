@@ -58,24 +58,22 @@ export default function Login() {
     }
   };
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] to-[#1e293b] p-6">
+      <Card className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Sign In</CardTitle>
-          <CardDescription>
-            Sign in to your Task Manager account
-          </CardDescription>
+          <CardTitle className="text-3xl font-extrabold text-blue-300 mb-2 drop-shadow">Sign In</CardTitle>
+          <CardDescription className="text-slate-300">Sign in to your Task Manager account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="text-red-600 text-sm text-center bg-red-50 p-2 rounded">
+              <div className="text-red-400 text-sm text-center bg-red-900/30 p-2 rounded border border-red-500/30">
                 {error}
               </div>
             )}
-            
+
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email" className="text-blue-200">Email Address</Label>
               <Input
                 id="email"
                 name="email"
@@ -84,11 +82,12 @@ export default function Login() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
+                className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
               />
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-blue-200">Password</Label>
               <Input
                 id="password"
                 name="password"
@@ -97,15 +96,16 @@ export default function Login() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
+                className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full bg-gradient-to-r from-blue-700 to-blue-400 text-white font-semibold shadow-lg hover:from-blue-800 hover:to-blue-500 transition" disabled={loading}>
               {loading ? 'Signing In...' : 'Sign In'}
             </Button>
-            
+
             <div className="text-center text-sm">
-              <Link href="/signup" className="text-slate-600 hover:text-slate-900">
+              <Link href="/signup" className="text-blue-200 hover:text-white transition">
                 No account? Sign up
               </Link>
             </div>

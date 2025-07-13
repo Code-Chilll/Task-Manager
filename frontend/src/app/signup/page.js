@@ -77,19 +77,19 @@ export default function Signup() {
   };
 
   return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] to-[#1e293b] p-6">
+        <Card className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Sign Up</CardTitle>
-            <CardDescription>Create your Task Manager account</CardDescription>
+            <CardTitle className="text-3xl font-extrabold text-blue-300 mb-2 drop-shadow">Sign Up</CardTitle>
+            <CardDescription className="text-slate-300">Create your Task Manager account</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={step === 'form' ? (e) => { e.preventDefault(); handleSendOtp(); } : handleSignup} className="space-y-4">
-              {error && <div className="text-red-600 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
-              {message && <div className="text-green-600 text-sm text-center bg-green-50 p-2 rounded">{message}</div>}
+            <form onSubmit={step === 'form' ? (e) => { e.preventDefault(); handleSendOtp(); } : handleSignup} className="space-y-6">
+              {error && <div className="text-red-400 text-sm text-center bg-red-900/30 p-2 rounded border border-red-500/30">{error}</div>}
+              {message && <div className="text-green-400 text-sm text-center bg-green-900/30 p-2 rounded border border-green-500/30">{message}</div>}
 
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name" className="text-blue-200">Full Name</Label>
                 <Input
                     id="name"
                     name="name"
@@ -99,11 +99,12 @@ export default function Signup() {
                     value={formData.name}
                     onChange={handleChange}
                     disabled={step === 'otp'}
+                    className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email" className="text-blue-200">Email Address</Label>
                 <Input
                     id="email"
                     name="email"
@@ -113,11 +114,12 @@ export default function Signup() {
                     value={formData.email}
                     onChange={handleChange}
                     disabled={step === 'otp'}
+                    className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-blue-200">Password</Label>
                 <Input
                     id="password"
                     name="password"
@@ -127,12 +129,13 @@ export default function Signup() {
                     value={formData.password}
                     onChange={handleChange}
                     disabled={step === 'otp'}
+                    className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                 />
               </div>
 
               {step === 'otp' && (
                   <div className="space-y-2">
-                    <Label htmlFor="otp">Enter OTP</Label>
+                    <Label htmlFor="otp" className="text-blue-200">Enter OTP</Label>
                     <Input
                         id="otp"
                         name="otp"
@@ -141,11 +144,12 @@ export default function Signup() {
                         placeholder="OTP sent to your email"
                         value={formData.otp}
                         onChange={handleChange}
+                        className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                     />
                   </div>
               )}
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full bg-gradient-to-r from-blue-700 to-blue-400 text-white font-semibold shadow-lg hover:from-blue-800 hover:to-blue-500 transition" disabled={loading}>
                 {loading
                     ? step === 'form'
                         ? 'Sending OTP...'
@@ -156,7 +160,7 @@ export default function Signup() {
               </Button>
 
               <div className="text-center text-sm">
-                <Link href="/login" className="text-slate-600 hover:text-slate-900">
+                <Link href="/login" className="text-blue-200 hover:text-white transition">
                   Already have an account? Sign in
                 </Link>
               </div>
