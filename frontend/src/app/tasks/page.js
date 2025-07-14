@@ -69,59 +69,61 @@ export default function Tasks() {
   }
 
   return (
-    <div className="min-h-screen p-6 bg-slate-50">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex flex-col items-center">
+      <div className="max-w-4xl w-full backdrop-blur-lg bg-white/10 border border-blue-400/30 rounded-2xl shadow-xl p-8 mt-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">My Tasks</h1>
-            <p className="text-slate-600 mt-1">Manage and track your tasks</p>
-            <p className="text-sm text-slate-500">Logged in as: {userEmail}</p>
+            <h1 className="text-4xl font-extrabold text-blue-300 drop-shadow mb-1">My Tasks</h1>
+            <p className="text-slate-300">Manage and track your tasks</p>
+            <p className="text-xs text-blue-200 mt-2">Logged in as: <span className="font-semibold">{userEmail}</span></p>
           </div>
           <div className="flex gap-2">
-            <Button asChild>
+            <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
               <Link href="/tasks/add">Add New Task</Link>
             </Button>
-            <Button variant="outline" onClick={handleLogout}>
+            <Button variant="outline" onClick={handleLogout} className="border-blue-400 text-blue-300 hover:bg-blue-900/30">
               Logout
             </Button>
           </div>
         </div>
 
         {error && (
-          <div className="text-red-600 text-sm bg-red-50 p-3 rounded mb-4">
+          <div className="text-red-600 text-sm bg-red-900/30 p-3 rounded mb-4 border border-red-400/30">
             {error}
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {Array.isArray(tasks) && tasks.map((task) => (
-            <Card key={task.id} className="hover:shadow-md transition-shadow">
+            <Card key={task.id} className="bg-white/10 border border-blue-400/20 rounded-xl shadow-lg hover:shadow-2xl transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <CardTitle className="text-xl">{task.name}</CardTitle>
-                    <CardDescription className="mt-1">
-                      {task.description}
-                    </CardDescription>
+                    <CardTitle className="text-2xl font-bold text-blue-200 drop-shadow mb-1">{task.name}</CardTitle>
+                    <CardDescription className="mt-1 text-slate-300">{task.description}</CardDescription>
                   </div>
                   <div className="flex space-x-2 ml-4">
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild className="border-blue-400 text-blue-300 hover:bg-blue-900/30">
                       <Link href={`/tasks/edit/${task.id}`}>Edit</Link>
                     </Button>
-                    <Button variant="destructive" size="sm" onClick={() => deleteTask(task.id)}>
+                    <Button variant="destructive" size="sm" onClick={() => deleteTask(task.id)} className="bg-red-700/80 text-white hover:bg-red-900/80">
                       Delete
                     </Button>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center">
-                  <span className="text-sm font-medium text-slate-700 mr-2">Status:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    task.completed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium text-blue-300">Status:</span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold shadow ${
+                    task.completed ? 'bg-green-900/40 text-green-300 border border-green-400/30' : 'bg-yellow-900/40 text-yellow-300 border border-yellow-400/30'
                   }`}>
                     {task.completed ? 'Completed' : 'Pending'}
                   </span>
+                </div>
+                <div className="flex gap-6 mt-4">
+                  <span className="text-xs text-blue-200">Priority: <span className="font-bold text-blue-300">{task.priority ?? 'N/A'}</span></span>
+                  <span className="text-xs text-blue-200">Last Date: <span className="font-bold text-blue-300">{task.lastDate ?? 'N/A'}</span></span>
                 </div>
               </CardContent>
             </Card>
@@ -129,11 +131,11 @@ export default function Tasks() {
         </div>
 
         {(!Array.isArray(tasks) || tasks.length === 0) && !loading && (
-          <Card className="text-center py-12">
+          <Card className="text-center py-12 bg-white/10 border border-blue-400/20 rounded-xl shadow-lg">
             <CardContent>
-              <h3 className="text-lg font-medium text-slate-900 mb-2">No tasks found</h3>
-              <p className="text-slate-600 mb-4">Get started by creating your first task.</p>
-              <Button asChild>
+              <h3 className="text-lg font-bold text-blue-200 mb-2">No tasks found</h3>
+              <p className="text-slate-300 mb-4">Get started by creating your first task.</p>
+              <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
                 <Link href="/tasks/add">Add Your First Task</Link>
               </Button>
             </CardContent>

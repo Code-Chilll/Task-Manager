@@ -121,6 +121,10 @@ export default function EditTask() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="flex gap-6 mb-6">
+              <span className="text-xs text-blue-600">Priority: <span className="font-bold">{task.priority}</span></span>
+              <span className="text-xs text-blue-600">Last Date: <span className="font-bold">{task.lastDate}</span></span>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <div className="text-red-600 text-sm bg-red-50 p-2 rounded">
