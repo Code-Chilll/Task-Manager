@@ -14,6 +14,8 @@ public class Task {
     private String name;
     private String description;
     private boolean completed;
+    private String priority;
+    private String lastDate;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -49,6 +51,20 @@ public class Task {
     }
     public void setCompleted(boolean completed){
         this.completed = completed;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
+    public String getLastDate() {
+        return lastDate;
+    }
+    public void setLastDate(String lastDate) {
+        this.lastDate = lastDate;
     }
 
     @PrePersist

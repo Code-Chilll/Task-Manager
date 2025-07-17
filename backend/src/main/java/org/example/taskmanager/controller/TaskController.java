@@ -51,4 +51,14 @@ public class TaskController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Task> getTaskById(@PathVariable Long id, @RequestParam String userEmail) {
+        Task task = taskService.getTaskById(id, userEmail);
+        if (task != null) {
+            return ResponseEntity.ok(task);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

@@ -50,4 +50,12 @@ public class TaskService {
         }
         taskRepository.delete(existingTask);
     }
+
+    public Task getTaskById(Long id, String userEmail) {
+        Task task = taskRepository.findById(id).orElse(null);
+        if (task != null && task.getUser() != null && userEmail.equals(task.getUser().getEmail())) {
+            return task;
+        }
+        return null;
+    }
 }
