@@ -11,7 +11,34 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    // Save user if not already exists
+    public User createUser(User user) {
+        return userRepository.save(user);
+    }
+
+    public String loginUser(User loginRequest) {
+        User user = userRepository.findByEmail(loginRequest.getEmail());
+        if (user != null && user.getPassword().equals(loginRequest.getPassword())) {
+            return "Login successful";
+        }
+        return "Invalid credentials";
+    }
+
+    public java.util.List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public void deleteUser(String email) {
+        User user = userRepository.findByEmail(email);
+        if(user != null) {
+            userRepository.delete(user);
+        }
+    }
+
+    // Save user if not already exists (used for OTP signup)
     public Integer saveUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             return 0; // already registered
@@ -19,14 +46,6 @@ public class UserService {
             userRepository.save(user);
             return 1; // successfully registered
         }
-    }
-
-    public boolean isUserExists(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
     }
 }
 

@@ -1,7 +1,7 @@
 package org.example.taskmanager.controller;
 
 import org.example.taskmanager.model.User;
-import org.example.taskmanager.repository.UserRepository;
+import org.example.taskmanager.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,37 +12,30 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @PostMapping
     public User createUser(@RequestBody User user) {
-        return userRepository.save(user);
+        return userService.createUser(user);
     }
 
     @PostMapping("/login")
     public String loginUser(@RequestBody User loginRequest) {
-        User user = userRepository.findByEmail(loginRequest.getEmail());
-        if (user != null && user.getPassword().equals(loginRequest.getPassword())) {
-            return "Login successful";
-        }
-        return "Invalid credentials";
+        return userService.loginUser(loginRequest);
     }
 
     @GetMapping
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{email}")
     public User getUserByEmail(@PathVariable String email) {
-        return userRepository.findByEmail(email);
+        return userService.getUserByEmail(email);
     }
 
     @DeleteMapping("/{email}")
     public void deleteUser(@PathVariable String email) {
-        User user = userRepository.findByEmail(email);
-        if(user != null) {
-            userRepository.delete(user);
-        }
+        userService.deleteUser(email);
     }
 }
