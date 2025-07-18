@@ -11,13 +11,18 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordService passwordService;
+
     public User createUser(User user) {
+        // Hash password before saving
+        user.setPassword(passwordService.hashPassword(user.getPassword()));
         return userRepository.save(user);
     }
 
     public String loginUser(User loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail());
-        if (user != null && user.getPassword().equals(loginRequest.getPassword())) {
+        if (user != null && passwordService.verifyPassword(loginRequest.getPassword(), user.getPassword())) {
             return "Login successful";
         }
         return "Invalid credentials";
@@ -43,6 +48,8 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail())) {
             return 0; // already registered
         } else {
+            // Hash password before saving
+            user.setPassword(passwordService.hashPassword(user.getPassword()));
             userRepository.save(user);
             return 1; // successfully registered
         }
