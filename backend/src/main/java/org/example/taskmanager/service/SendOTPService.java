@@ -11,7 +11,7 @@ public class SendOTPService {
         String to = email;
 
         // Sender's email ID needs to be mentioned
-        String from = "soumyasrivastav53@gmail.com";
+        String from = "updates.taskmanager@gmail.com";
 
         // Assuming you are sending email from through gmails smtp
         String host = "smtp.gmail.com";
@@ -30,7 +30,7 @@ public class SendOTPService {
 
             protected PasswordAuthentication getPasswordAuthentication() {
 
-                return new PasswordAuthentication(from, "cwjysnmetxaactju");
+                return new PasswordAuthentication(from, "tzzn wzzt oity ciag");
 
             }
 
@@ -50,10 +50,10 @@ public class SendOTPService {
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 
             // Set Subject: header field
-            message.setSubject("File Enc OTP");
+            message.setSubject("Task Manager OTP");
 
             // Now set the actual message
-            message.setText("Your One time Password for File Enc app is " + genOTP);
+            message.setText("Your One Time Password for Task Manager app is " + genOTP);
 
             System.out.println("sending...");
             // Send message
