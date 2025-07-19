@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { setUserEmail, isAuthenticated } from "@/lib/auth";
+import { setUserEmail, setUserRole, setUserName, isAuthenticated } from "@/lib/auth";
 
 export default function Login() {
   const router = useRouter();
@@ -43,12 +43,17 @@ export default function Login() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-      const result = await response.text();
-      if (result === 'Login successful') {
-        setUserEmail(formData.email);
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Store user information including role
+        setUserEmail(result.email);
+        setUserRole(result.role);
+        setUserName(result.name);
         router.push('/tasks');
       } else {
-        setError('Invalid email or password');
+        setError(result.message || 'Invalid email or password');
       }
     } catch (error) {
       setError('Invalid email or password');

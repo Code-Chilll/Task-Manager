@@ -31,8 +31,30 @@ export const getUserEmail = () => {
   return getCookie('userEmail');
 };
 
+export const setUserRole = (role) => {
+  setCookie('userRole', role, 30); // Store for 30 days
+};
+
+export const getUserRole = () => {
+  return getCookie('userRole');
+};
+
+export const setUserName = (name) => {
+  setCookie('userName', name, 30); // Store for 30 days
+};
+
+export const getUserName = () => {
+  return getCookie('userName');
+};
+
+export const isAdmin = () => {
+  return getUserRole() === 'ADMIN';
+};
+
 export const logout = () => {
   deleteCookie('userEmail');
+  deleteCookie('userRole');
+  deleteCookie('userName');
   window.location.href = '/login';
 };
 

@@ -17,9 +17,17 @@ public class User {
 
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Task> tasks;
+
+    public enum Role {
+        USER, ADMIN
+    }
 
     public String getName() {
         return name;
@@ -40,6 +48,13 @@ public class User {
     }
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public List<Task> getTasks() {

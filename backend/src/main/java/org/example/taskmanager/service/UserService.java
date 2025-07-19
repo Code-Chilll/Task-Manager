@@ -5,6 +5,9 @@ import org.example.taskmanager.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class UserService {
 
@@ -20,12 +23,22 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public String loginUser(User loginRequest) {
+    public Map<String, Object> loginUser(User loginRequest) {
+        Map<String, Object> response = new HashMap<>();
         User user = userRepository.findByEmail(loginRequest.getEmail());
+        
         if (user != null && passwordService.verifyPassword(loginRequest.getPassword(), user.getPassword())) {
-            return "Login successful";
+            response.put("success", true);
+            response.put("message", "Login successful");
+            response.put("email", user.getEmail());
+            response.put("name", user.getName());
+            response.put("role", user.getRole().toString());
+        } else {
+            response.put("success", false);
+            response.put("message", "Invalid credentials");
         }
-        return "Invalid credentials";
+        
+        return response;
     }
 
     public java.util.List<User> getAllUsers() {
@@ -52,6 +65,21 @@ public class UserService {
             user.setPassword(passwordService.hashPassword(user.getPassword()));
             userRepository.save(user);
             return 1; // successfully registered
+        }
+    }
+    
+    public User updateUserRole(String email, String roleString) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        
+        try {
+            User.Role role = User.Role.valueOf(roleString.toUpperCase());
+            user.setRole(role);
+            return userRepository.save(user);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid role: " + roleString);
         }
     }
 }

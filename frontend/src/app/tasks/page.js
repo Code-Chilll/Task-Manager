@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getUserEmail, logout, isAuthenticated } from "@/lib/auth";
+import { getUserEmail, getUserRole, getUserName, logout, isAuthenticated, isAdmin } from "@/lib/auth";
 
 export default function Tasks() {
   const router = useRouter();
@@ -12,6 +12,9 @@ export default function Tasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const userEmail = getUserEmail();
+  const userRole = getUserRole();
+  const userName = getUserName();
+  const isUserAdmin = isAdmin();
 
   useEffect(() => {
     // Check authentication
@@ -73,14 +76,26 @@ export default function Tasks() {
       <div className="max-w-4xl w-full backdrop-blur-lg bg-white/10 border border-blue-400/30 rounded-2xl shadow-xl p-8 mt-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-extrabold text-blue-300 drop-shadow mb-1">My Tasks</h1>
-            <p className="text-slate-300">Manage and track your tasks</p>
-            <p className="text-xs text-blue-200 mt-2">Logged in as: <span className="font-semibold">{userEmail}</span></p>
+            <h1 className="text-4xl font-extrabold text-blue-300 drop-shadow mb-1">
+              {isUserAdmin ? 'All Tasks (Admin View)' : 'My Tasks'}
+            </h1>
+            <p className="text-slate-300">
+              {isUserAdmin ? 'Manage all tasks across the system' : 'Manage and track your tasks'}
+            </p>
+            <p className="text-xs text-blue-200 mt-2">
+              Logged in as: <span className="font-semibold">{userName || userEmail}</span>
+              {isUserAdmin && <span className="ml-2 px-2 py-1 bg-purple-600 text-xs rounded-full">ADMIN</span>}
+            </p>
           </div>
           <div className="flex gap-2">
             <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
               <Link href="/tasks/add">Add New Task</Link>
             </Button>
+            {isUserAdmin && (
+              <Button asChild variant="outline" className="border-purple-400 text-purple-300 hover:bg-purple-900/30">
+                <Link href="/admin">Admin Panel</Link>
+              </Button>
+            )}
             <Button variant="outline" onClick={handleLogout} className="border-blue-400 text-blue-300 hover:bg-blue-900/30">
               Logout
             </Button>
@@ -99,16 +114,27 @@ export default function Tasks() {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <CardTitle className="text-2xl font-bold text-blue-200 drop-shadow mb-1">{task.name}</CardTitle>
+                    <div className="flex items-center gap-2 mb-2">
+                      <CardTitle className="text-2xl font-bold text-blue-200 drop-shadow">{task.name}</CardTitle>
+                      {isUserAdmin && task.user && task.user.email !== userEmail && (
+                        <span className="px-2 py-1 bg-orange-600/80 text-white text-xs rounded-full">
+                          User: {task.user.name || task.user.email}
+                        </span>
+                      )}
+                    </div>
                     <CardDescription className="mt-1 text-slate-300">{task.description}</CardDescription>
                   </div>
                   <div className="flex space-x-2 ml-4">
-                    <Button variant="outline" size="sm" asChild className="border-blue-400 text-blue-300 hover:bg-blue-900/30">
-                      <Link href={`/tasks/edit/${task.id}`}>Edit</Link>
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={() => deleteTask(task.id)} className="bg-red-700/80 text-white hover:bg-red-900/80">
-                      Delete
-                    </Button>
+                    {(isUserAdmin || task.user?.email === userEmail) && (
+                      <>
+                        <Button variant="outline" size="sm" asChild className="border-blue-400 text-blue-300 hover:bg-blue-900/30">
+                          <Link href={`/tasks/edit/${task.id}`}>Edit</Link>
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() => deleteTask(task.id)} className="bg-red-700/80 text-white hover:bg-red-900/80">
+                          Delete
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </CardHeader>
@@ -133,11 +159,17 @@ export default function Tasks() {
         {(!Array.isArray(tasks) || tasks.length === 0) && !loading && (
           <Card className="text-center py-12 bg-white/10 border border-blue-400/20 rounded-xl shadow-lg">
             <CardContent>
-              <h3 className="text-lg font-bold text-blue-200 mb-2">No tasks found</h3>
-              <p className="text-slate-300 mb-4">Get started by creating your first task.</p>
-              <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
-                <Link href="/tasks/add">Add Your First Task</Link>
-              </Button>
+              <h3 className="text-lg font-bold text-blue-200 mb-2">
+                {isUserAdmin ? 'No tasks found in the system' : 'No tasks found'}
+              </h3>
+              <p className="text-slate-300 mb-4">
+                {isUserAdmin ? 'No users have created tasks yet.' : 'Get started by creating your first task.'}
+              </p>
+              {!isUserAdmin && (
+                <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
+                  <Link href="/tasks/add">Add Your First Task</Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
         )}
