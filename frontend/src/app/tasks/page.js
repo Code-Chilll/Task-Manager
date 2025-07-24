@@ -50,12 +50,14 @@ export default function Tasks() {
   };
 
   const deleteTask = async (id) => {
-    try {
-      await fetch(`http://localhost:8080/tasks/${id}?userEmail=${encodeURIComponent(userEmail)}`, { method: 'DELETE' });
-      setTasks(tasks.filter(task => task.id !== id));
-    } catch (error) {
-      setError('Failed to delete task');
-      console.error('Delete task error:', error);
+    if (window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+      try {
+        await fetch(`http://localhost:8080/tasks/${id}?userEmail=${encodeURIComponent(userEmail)}`, { method: 'DELETE' });
+        setTasks(tasks.filter(task => task.id !== id));
+      } catch (error) {
+        setError('Failed to delete task');
+        console.error('Delete task error:', error);
+      }
     }
   };
 
