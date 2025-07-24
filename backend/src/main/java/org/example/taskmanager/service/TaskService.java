@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 @Service
 public class TaskService {
@@ -18,11 +18,28 @@ public class TaskService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<Task> getAllTasks(String userEmail) {
+    private User validateUser(String userEmail) {
         User user = userRepository.findByEmail(userEmail);
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new SecurityException("User not found");
         }
+        return user;
+    }
+
+    private Task validateTask(Long id) {
+        return taskRepository.findById(id).orElseThrow(() -> 
+            new NoSuchElementException("Task not found"));
+    }
+
+    private void validateTaskAccess(User currentUser, Task task, String userEmail) {
+        if (currentUser.getRole() != User.Role.ADMIN && 
+            !task.getUser().getEmail().equals(userEmail)) {
+            throw new SecurityException("Unauthorized to access this task.");
+        }
+    }
+
+    public List<Task> getAllTasks(String userEmail) {
+        User user = validateUser(userEmail);
         
         // If user is admin, return all tasks with user details
         if (user.getRole() == User.Role.ADMIN) {
@@ -34,29 +51,15 @@ public class TaskService {
     }
 
     public Task addTask(Task task, String userEmail) {
-        User existingUser = userRepository.findByEmail(userEmail);
-        if (existingUser != null) {
-            task.setUser(existingUser);
-        } else {
-            throw new RuntimeException("User does not exist.");
-        }
+        User existingUser = validateUser(userEmail);
+        task.setUser(existingUser);
         return taskRepository.save(task);
     }
 
     public Task updateTask(Long id, Task task, String userEmail) {
-        User currentUser = userRepository.findByEmail(userEmail);
-        if (currentUser == null) {
-            throw new RuntimeException("User not found");
-        }
-        
-        Task existingTask = taskRepository.findById(id).orElseThrow(() -> 
-            new RuntimeException("Task not found"));
-        
-        // Admin can edit any task, regular users can only edit their own
-        if (currentUser.getRole() != User.Role.ADMIN && 
-            !existingTask.getUser().getEmail().equals(userEmail)) {
-            throw new RuntimeException("Unauthorized to update this task.");
-        }
+        User currentUser = validateUser(userEmail);
+        Task existingTask = validateTask(id);
+        validateTaskAccess(currentUser, existingTask, userEmail);
         
         existingTask.setName(task.getName());
         existingTask.setDescription(task.getDescription());
@@ -67,37 +70,18 @@ public class TaskService {
     }
 
     public void deleteTask(Long id, String userEmail) {
-        User currentUser = userRepository.findByEmail(userEmail);
-        if (currentUser == null) {
-            throw new RuntimeException("User not found");
-        }
-        
-        Task existingTask = taskRepository.findById(id).orElseThrow(() -> 
-            new RuntimeException("Task not found"));
-        
-        // Admin can delete any task, regular users can only delete their own
-        if (currentUser.getRole() != User.Role.ADMIN && 
-            !existingTask.getUser().getEmail().equals(userEmail)) {
-            throw new RuntimeException("Unauthorized to delete this task.");
-        }
+        User currentUser = validateUser(userEmail);
+        Task existingTask = validateTask(id);
+        validateTaskAccess(currentUser, existingTask, userEmail);
         
         taskRepository.delete(existingTask);
     }
 
     public Task getTaskById(Long id, String userEmail) {
-        User currentUser = userRepository.findByEmail(userEmail);
-        if (currentUser == null) {
-            return null;
-        }
+        User currentUser = validateUser(userEmail);
+        Task task = validateTask(id);
+        validateTaskAccess(currentUser, task, userEmail);
         
-        Task task = taskRepository.findById(id).orElse(null);
-        if (task != null) {
-            // Admin can view any task, regular users can only view their own
-            if (currentUser.getRole() == User.Role.ADMIN || 
-                userEmail.equals(task.getUser().getEmail())) {
-                return task;
-            }
-        }
-        return null;
+        return task;
     }
 }

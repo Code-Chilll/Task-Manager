@@ -23,32 +23,20 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<?> addTask(@RequestBody Task task, @RequestParam String userEmail) {
-        try {
-            Task createdTask = taskService.addTask(task, userEmail);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+        Task createdTask = taskService.addTask(task, userEmail);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTask(@PathVariable Long id, @RequestBody Task task, @RequestParam String userEmail) {
-        try {
-            Task updatedTask = taskService.updateTask(id, task, userEmail);
-            return ResponseEntity.ok(updatedTask);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
+        Task updatedTask = taskService.updateTask(id, task, userEmail);
+        return ResponseEntity.ok(updatedTask);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTask(@PathVariable Long id, @RequestParam String userEmail) {
-        try {
-            taskService.deleteTask(id, userEmail);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
+        taskService.deleteTask(id, userEmail);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 public class UserService {
@@ -71,7 +72,7 @@ public class UserService {
     public User updateUserRole(String email, String roleString) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new NoSuchElementException("User not found");
         }
         
         try {
@@ -79,7 +80,7 @@ public class UserService {
             user.setRole(role);
             return userRepository.save(user);
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid role: " + roleString);
+            throw new IllegalArgumentException("Invalid role: " + roleString);
         }
     }
 }

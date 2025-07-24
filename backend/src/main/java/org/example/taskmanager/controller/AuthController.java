@@ -4,6 +4,7 @@ import org.example.taskmanager.model.User;
 import org.example.taskmanager.service.OtpService;
 import org.example.taskmanager.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,34 +18,33 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/send-otp")
-    public String sendOtp(@RequestParam String email){
+    public ResponseEntity<String> sendOtp(@RequestParam String email){
         otpService.generateAndSendOtp(email);
-        return "OTP sent successfully";
+        return ResponseEntity.ok("OTP sent successfully");
     }
 
     @PostMapping("/verify-otp")
-    public String verifyOtp(@RequestParam String email, @RequestParam String otp) {
+    public ResponseEntity<String> verifyOtp(@RequestParam String email, @RequestParam String otp) {
         if(otpService.verifyOtp(email, otp)){
-            return "OTP verified successfully";
-        }
-        else{
-            return "Invalid or expired OTP";
+            return ResponseEntity.ok("OTP verified successfully");
+        } else {
+            throw new SecurityException("Invalid or expired OTP");
         }
     }
 
     @PostMapping("/signup")
-    public String signup(@RequestBody User user,@RequestParam String otp) {
-        if(otpService.verifyOtp(user.getEmail(), otp)){
-            Integer result = userService.saveUser(user);
-            if(result == 0){
-                return "User already exists";
-            } else if(result != null) {
-                return "User registered successfully";
-            } else {
-                return "Error occurred while registering user";
-            }
+    public ResponseEntity<String> signup(@RequestBody User user, @RequestParam String otp) {
+        if(!otpService.verifyOtp(user.getEmail(), otp)){
+            throw new SecurityException("Invalid or expired OTP");
+        }
+        
+        Integer result = userService.saveUser(user);
+        if(result == 0){
+            throw new IllegalArgumentException("User already exists");
+        } else if(result != null) {
+            return ResponseEntity.ok("User registered successfully");
         } else {
-            return "Invalid or expired OTP";
+            throw new IllegalArgumentException("Error occurred while registering user");
         }
     }
 }
