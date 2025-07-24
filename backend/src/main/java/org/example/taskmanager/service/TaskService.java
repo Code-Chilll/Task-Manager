@@ -46,8 +46,8 @@ public class TaskService {
             return taskRepository.findAllWithUser();
         }
         
-        // If regular user, return only their tasks
-        return taskRepository.findByUserEmail(userEmail);
+        // If regular user, return only their tasks with user details
+        return taskRepository.findByUserEmailWithUser(userEmail);
     }
 
     public Task addTask(Task task, String userEmail) {
