@@ -96,18 +96,6 @@ export default function EditTask() {
     }
   };
 
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
-      try {
-        await fetch(`http://localhost:8080/tasks/${taskId}`, { method: 'DELETE' });
-        window.location.href = '/tasks';
-      } catch (error) {
-        setError('Failed to delete task. Please try again.');
-        console.error('Delete task error:', error);
-      }
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] to-[#1e293b] p-6">
@@ -223,19 +211,6 @@ export default function EditTask() {
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
-        <Card className="border-red-200 bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
-          <CardHeader>
-            <CardTitle className="text-lg text-red-400">Danger Zone</CardTitle>
-            <CardDescription className="text-red-300">
-              Deleting a task is permanent and cannot be undone.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="destructive" onClick={handleDelete} className="w-full">
-              Delete Task
-            </Button>
           </CardContent>
         </Card>
       </div>
