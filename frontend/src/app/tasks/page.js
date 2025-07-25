@@ -36,7 +36,6 @@ export default function Tasks() {
       }
       
       const data = await response.json();
-      console.log('Tasks response:', data); // Debug log
       
       // Ensure data is an array
       setTasks(Array.isArray(data) ? data : []);

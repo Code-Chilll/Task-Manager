@@ -10,4 +10,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     
     @Query("SELECT t FROM Task t JOIN FETCH t.user")
     List<Task> findAllWithUser();
+    
+    @Query("SELECT t FROM Task t JOIN FETCH t.user WHERE t.user.email = :userEmail")
+    List<Task> findByUserEmailWithUser(String userEmail);
 }

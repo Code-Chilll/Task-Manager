@@ -1,6 +1,5 @@
 package org.example.taskmanager.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -21,7 +20,6 @@ public class Task {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @JsonBackReference
     @ManyToOne
     @JoinColumn(name="user_email", referencedColumnName ="email")
     private User user;
