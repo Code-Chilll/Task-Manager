@@ -94,8 +94,6 @@ public class TaskController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTask(@PathVariable Long id, @RequestBody Task task, @RequestParam String userEmail) {
 
-        Task updatedTask = taskService.updateTask(id, task, userEmail);
-        return ResponseEntity.ok(updatedTask);
         // Validate userEmail parameter
         if (userEmail == null || userEmail.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("User email is required");
