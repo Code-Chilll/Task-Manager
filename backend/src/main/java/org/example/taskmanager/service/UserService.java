@@ -19,6 +19,18 @@ public class UserService {
     private PasswordService passwordService;
 
     public User createUser(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User data is required");
+        }
+        
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+        
         // Hash password before saving
         user.setPassword(passwordService.hashPassword(user.getPassword()));
         return userRepository.save(user);
@@ -26,7 +38,26 @@ public class UserService {
 
     public Map<String, Object> loginUser(User loginRequest) {
         Map<String, Object> response = new HashMap<>();
-        User user = userRepository.findByEmail(loginRequest.getEmail());
+        
+        if (loginRequest == null) {
+            response.put("success", false);
+            response.put("message", "Login data is required");
+            return response;
+        }
+        
+        if (loginRequest.getEmail() == null || loginRequest.getEmail().trim().isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Email is required");
+            return response;
+        }
+        
+        if (loginRequest.getPassword() == null || loginRequest.getPassword().isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Password is required");
+            return response;
+        }
+        
+        User user = userRepository.findByEmail(loginRequest.getEmail().trim().toLowerCase());
         
         if (user != null && passwordService.verifyPassword(loginRequest.getPassword(), user.getPassword())) {
             response.put("success", true);
@@ -47,11 +78,18 @@ public class UserService {
     }
 
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        if (email == null || email.trim().isEmpty()) {
+            return null;
+        }
+        return userRepository.findByEmail(email.trim().toLowerCase());
     }
 
     public void deleteUser(String email) {
-        User user = userRepository.findByEmail(email);
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        
+        User user = userRepository.findByEmail(email.trim().toLowerCase());
         if(user != null) {
             userRepository.delete(user);
         }
@@ -59,7 +97,15 @@ public class UserService {
 
     // Save user if not already exists (used for OTP signup)
     public Integer saveUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (user == null) {
+            throw new IllegalArgumentException("User data is required");
+        }
+        
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        
+        if (userRepository.existsByEmail(user.getEmail().toLowerCase())) {
             return 0; // already registered
         } else {
             // Hash password before saving
@@ -70,7 +116,15 @@ public class UserService {
     }
     
     public User updateUserRole(String email, String roleString) {
-        User user = userRepository.findByEmail(email);
+        if (email == null || email.trim().isEmpty()) {
+            throw new RuntimeException("Email is required");
+        }
+        
+        if (roleString == null || roleString.trim().isEmpty()) {
+            throw new RuntimeException("Role is required");
+        }
+        
+        User user = userRepository.findByEmail(email.trim().toLowerCase());
         if (user == null) {
             throw new NoSuchElementException("User not found");
         }
