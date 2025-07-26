@@ -22,6 +22,42 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  // Basic email format check
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.name) {
+      errors.name = 'Name is required';
+    } else if (formData.name.length < 2) {
+      errors.name = 'Name must be at least 2 characters';
+    }
+    if (!formData.email) {
+      errors.email = 'Email is required';
+    } else if (!validateEmail(formData.email)) {
+      errors.email = 'Invalid email address';
+    }
+    if (!formData.password) {
+      errors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters';
+    }
+    return errors;
+  };
+
+  const validateOtp = () => {
+    const errors = {};
+    if (!formData.otp) {
+      errors.otp = 'OTP is required';
+    } else if (!/^\d{4,6}$/.test(formData.otp)) {
+      errors.otp = 'OTP must be 4-6 digits';
+    }
+    return errors;
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -33,6 +69,13 @@ export default function Signup() {
   const handleSendOtp = async () => {
     setLoading(true);
     setError('');
+    setFieldErrors({});
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`http://localhost:8080/auth/send-otp?email=${formData.email}`, {
         method: 'POST',
@@ -51,6 +94,13 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setFieldErrors({});
+    const errors = validateOtp();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`http://localhost:8080/auth/signup?otp=${formData.otp}`, {
         method: 'POST',
@@ -101,6 +151,9 @@ export default function Signup() {
                     disabled={step === 'otp'}
                     className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                 />
+                {fieldErrors.name && (
+                  <div className="text-red-400 text-xs mt-1">{fieldErrors.name}</div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -116,6 +169,9 @@ export default function Signup() {
                     disabled={step === 'otp'}
                     className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                 />
+                {fieldErrors.email && (
+                  <div className="text-red-400 text-xs mt-1">{fieldErrors.email}</div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -131,6 +187,9 @@ export default function Signup() {
                     disabled={step === 'otp'}
                     className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                 />
+                {fieldErrors.password && (
+                  <div className="text-red-400 text-xs mt-1">{fieldErrors.password}</div>
+                )}
               </div>
 
               {step === 'otp' && (
@@ -146,6 +205,9 @@ export default function Signup() {
                         onChange={handleChange}
                         className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                     />
+                    {fieldErrors.otp && (
+                      <div className="text-red-400 text-xs mt-1">{fieldErrors.otp}</div>
+                    )}
                   </div>
               )}
 

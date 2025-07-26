@@ -24,6 +24,7 @@ export default function EditTask() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
     // Check authentication
@@ -69,10 +70,33 @@ export default function EditTask() {
     }));
   };
 
+  const validate = () => {
+    const errors = {};
+    if (!task.name) {
+      errors.name = 'Task name is required';
+    } else if (task.name.length < 2) {
+      errors.name = 'Task name must be at least 2 characters';
+    }
+    if (!task.priority) {
+      errors.priority = 'Priority is required';
+    }
+    if (task.lastDate && isNaN(Date.parse(task.lastDate))) {
+      errors.lastDate = 'Invalid date';
+    }
+    return errors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
+    setFieldErrors({});
+    const errors = validate();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setSubmitting(false);
+      return;
+    }
 
     try {
       const taskData = {
@@ -145,6 +169,9 @@ export default function EditTask() {
                   onChange={handleChange}
                   className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                 />
+                {fieldErrors.name && (
+                  <div className="text-red-400 text-xs mt-1">{fieldErrors.name}</div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-blue-200">Task Description</Label>
@@ -170,6 +197,9 @@ export default function EditTask() {
                     <SelectItem value="high">High</SelectItem>
                   </SelectContent>
                 </Select>
+                {fieldErrors.priority && (
+                  <div className="text-red-400 text-xs mt-1">{fieldErrors.priority}</div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastDate" className="text-blue-200">Last Date</Label>
@@ -181,6 +211,9 @@ export default function EditTask() {
                   onChange={e => setTask(prev => ({ ...prev, lastDate: e.target.value }))}
                   className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                 />
+                {fieldErrors.lastDate && (
+                  <div className="text-red-400 text-xs mt-1">{fieldErrors.lastDate}</div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="completed" className="text-blue-200">Status</Label>
