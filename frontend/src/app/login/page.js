@@ -16,6 +16,27 @@ export default function Login() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  // Basic email format check
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validate = () => {
+    const errors = {};
+    if (!formData.email) {
+      errors.email = 'Email is required';
+    } else if (!validateEmail(formData.email)) {
+      errors.email = 'Invalid email address';
+    }
+    if (!formData.password) {
+      errors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters';
+    }
+    return errors;
+  };
 
   useEffect(() => {
     // Redirect if already authenticated
@@ -35,6 +56,14 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setFieldErrors({});
+
+    const errors = validate();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setLoading(false);
+      return;
+    }
 
     try {
       // Direct API call
@@ -89,6 +118,9 @@ export default function Login() {
                 placeholder="Enter your email"
                 className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
               />
+              {fieldErrors.email && (
+                <div className="text-red-400 text-xs mt-1">{fieldErrors.email}</div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -103,6 +135,9 @@ export default function Login() {
                 placeholder="Enter your password"
                 className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
               />
+              {fieldErrors.password && (
+                <div className="text-red-400 text-xs mt-1">{fieldErrors.password}</div>
+              )}
             </div>
 
             <Button type="submit" className="w-full bg-gradient-to-r from-blue-700 to-blue-400 text-white font-semibold shadow-lg hover:from-blue-800 hover:to-blue-500 transition" disabled={loading}>

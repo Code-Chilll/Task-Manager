@@ -18,6 +18,7 @@ export default function AddTask() {
   const [lastDate, setLastDate] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const router = useRouter();
   const userEmail = getUserEmail();
 
@@ -29,10 +30,33 @@ export default function AddTask() {
     }
   }, [router]);
 
+  const validate = () => {
+    const errors = {};
+    if (!name) {
+      errors.name = 'Task name is required';
+    } else if (name.length < 2) {
+      errors.name = 'Task name must be at least 2 characters';
+    }
+    if (!priority) {
+      errors.priority = 'Priority is required';
+    }
+    if (lastDate && isNaN(Date.parse(lastDate))) {
+      errors.lastDate = 'Invalid date';
+    }
+    return errors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setFieldErrors({});
+    const errors = validate();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setLoading(false);
+      return;
+    }
 
     try {
       const taskData = {
@@ -91,6 +115,9 @@ export default function AddTask() {
                   placeholder="Enter task name"
                   className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                 />
+                {fieldErrors.name && (
+                  <div className="text-red-400 text-xs mt-1">{fieldErrors.name}</div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -119,6 +146,9 @@ export default function AddTask() {
                     <SelectItem value="high">High</SelectItem>
                   </SelectContent>
                 </Select>
+                {fieldErrors.priority && (
+                  <div className="text-red-400 text-xs mt-1">{fieldErrors.priority}</div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -131,6 +161,9 @@ export default function AddTask() {
                   onChange={e => setLastDate(e.target.value)}
                   className="bg-white/20 text-slate-100 border-blue-400/30 focus:border-blue-400 placeholder:text-slate-400"
                 />
+                {fieldErrors.lastDate && (
+                  <div className="text-red-400 text-xs mt-1">{fieldErrors.lastDate}</div>
+                )}
               </div>
 
               <div className="space-y-2">
