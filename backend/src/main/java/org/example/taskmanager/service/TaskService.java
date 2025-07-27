@@ -1,10 +1,15 @@
 package org.example.taskmanager.service;
 
+import org.example.taskmanager.dto.TaskPageResponse;
 import org.example.taskmanager.model.Task;
 import org.example.taskmanager.model.User;
 import org.example.taskmanager.repository.TaskRepository;
 import org.example.taskmanager.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,6 +69,46 @@ public class TaskService {
             // Fallback to basic method from main branch
             return taskRepository.findByUserEmail(userEmail.trim().toLowerCase());
         }
+    }
+
+    // New method for paginated and filtered tasks
+    public TaskPageResponse getTasksWithPagination(String userEmail, String search, String priority, 
+                                                  Boolean completed, int page, int size, String sortBy, String sortDir) {
+        User user = validateUser(userEmail);
+        
+        // Validate pagination parameters
+        if (page < 0) page = 0;
+        if (size <= 0 || size > 100) size = 10; // Max 100 items per page
+        
+        // Create sort object
+        Sort.Direction direction = sortDir != null && sortDir.equalsIgnoreCase("desc") ? 
+                                  Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction, sortBy != null ? sortBy : "createdAt");
+        
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<Task> taskPage;
+        
+        // Clean up filter parameters
+        String cleanSearch = (search != null && search.trim().isEmpty()) ? null : search;
+        String cleanPriority = (priority != null && priority.trim().isEmpty()) ? null : priority;
+        
+        if (user.getRole() == User.Role.ADMIN) {
+            taskPage = taskRepository.findAllWithFilters(cleanSearch, cleanPriority, completed, pageable);
+        } else {
+            taskPage = taskRepository.findUserTasksWithFilters(userEmail.trim().toLowerCase(), 
+                                                              cleanSearch, cleanPriority, completed, pageable);
+        }
+        
+        return new TaskPageResponse(
+            taskPage.getContent(),
+            taskPage.getTotalElements(),
+            taskPage.getTotalPages(),
+            taskPage.getNumber(),
+            taskPage.getSize(),
+            taskPage.hasNext(),
+            taskPage.hasPrevious()
+        );
     }
 
     public Task addTask(Task task, String userEmail) {

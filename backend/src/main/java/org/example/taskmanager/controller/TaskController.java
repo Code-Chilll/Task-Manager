@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.example.taskmanager.dto.TaskPageResponse;
 import org.example.taskmanager.model.Task;
 import org.example.taskmanager.service.TaskService;
 import java.util.List;
@@ -34,6 +35,71 @@ public class TaskController {
         try {
             List<Task> tasks = taskService.getAllTasks(userEmail.trim().toLowerCase());
             return ResponseEntity.ok(tasks);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to get tasks: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<?> getTasksPaginated(
+            @RequestParam String userEmail,
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(required = false) String priority,
+            @RequestParam(required = false) Boolean completed,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        
+        // Validate userEmail parameter
+        if (userEmail == null || userEmail.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("User email is required");
+        }
+        
+        if (!EMAIL_PATTERN.matcher(userEmail.trim()).matches()) {
+            return ResponseEntity.badRequest().body("Invalid email format");
+        }
+        
+        // Validate pagination parameters
+        if (page < 0) {
+            return ResponseEntity.badRequest().body("Page number cannot be negative");
+        }
+        
+        if (size <= 0 || size > 100) {
+            return ResponseEntity.badRequest().body("Page size must be between 1 and 100");
+        }
+        
+        // Validate sortBy parameter
+        String[] allowedSortFields = {"createdAt", "name", "priority", "completed", "lastDate"};
+        boolean validSortField = false;
+        for (String field : allowedSortFields) {
+            if (field.equals(sortBy)) {
+                validSortField = true;
+                break;
+            }
+        }
+        if (!validSortField) {
+            return ResponseEntity.badRequest().body("Invalid sort field. Allowed: createdAt, name, priority, completed, lastDate");
+        }
+        
+        // Validate sortDir parameter
+        if (!sortDir.equalsIgnoreCase("asc") && !sortDir.equalsIgnoreCase("desc")) {
+            return ResponseEntity.badRequest().body("Sort direction must be 'asc' or 'desc'");
+        }
+        
+        // Validate priority filter
+        if (priority != null && !priority.trim().isEmpty()) {
+            String priorityLower = priority.trim().toLowerCase();
+            if (!priorityLower.equals("low") && !priorityLower.equals("medium") && !priorityLower.equals("high")) {
+                return ResponseEntity.badRequest().body("Priority must be one of: low, medium, high");
+            }
+            priority = priorityLower;
+        }
+        
+        try {
+            TaskPageResponse response = taskService.getTasksWithPagination(
+                userEmail.trim().toLowerCase(), search, priority, completed, page, size, sortBy, sortDir);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to get tasks: " + e.getMessage());
         }
