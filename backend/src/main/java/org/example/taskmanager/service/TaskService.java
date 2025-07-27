@@ -122,7 +122,10 @@ public class TaskService {
         
         User existingUser = validateUser(userEmail);
         task.setUser(existingUser);
-        return taskRepository.save(task);
+        Task createdTask = taskRepository.save(task);
+        // Send email notification
+        TaskMailService.sendTaskCreatedMail(createdTask);
+        return createdTask;
     }
 
     public Task updateTask(Long id, Task task, String userEmail) {
@@ -143,14 +146,18 @@ public class TaskService {
         existingTask.setCompleted(task.isCompleted());
         existingTask.setPriority(task.getPriority());
         existingTask.setLastDate(task.getLastDate());
-        return taskRepository.save(existingTask);
+        Task updatedTask = taskRepository.save(existingTask);
+        // Send email notification
+        TaskMailService.sendTaskUpdatedMail(updatedTask);
+        return updatedTask;
     }
 
     public void deleteTask(Long id, String userEmail) {
         User currentUser = validateUser(userEmail);
         Task existingTask = validateTask(id);
         validateTaskAccess(currentUser, existingTask, userEmail);
-        
+        // Send email notification before deleting
+        TaskMailService.sendTaskDeletedMail(existingTask);
         taskRepository.delete(existingTask);
     }
 
