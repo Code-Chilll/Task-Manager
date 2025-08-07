@@ -149,6 +149,11 @@ export default function Login() {
                 No account? Sign up
               </Link>
             </div>
+            <div className="text-center text-sm mt-2">
+              <Link href="/forget-password" className="text-blue-200 hover:text-white transition">
+                Forgot your password?
+              </Link>
+            </div>
           </form>
         </CardContent>
       </Card>
