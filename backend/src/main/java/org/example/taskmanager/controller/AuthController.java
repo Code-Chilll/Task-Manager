@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @RestController
@@ -130,6 +131,49 @@ public class AuthController {
             }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Signup failed: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/forget-password")
+    public ResponseEntity<String> forgetPassword(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+
+        // Log the received email for debugging
+        System.out.println("Received forget-password request for email: " + email);
+
+        // Reuse sendOtp logic for forget password
+        return sendOtp(email);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        String otp = requestBody.get("otp");
+        String newPassword = requestBody.get("newPassword");
+        String confirmPassword = requestBody.get("confirmPassword");
+
+        // Validate inputs
+        if (newPassword == null || newPassword.isEmpty() || confirmPassword == null || confirmPassword.isEmpty()) {
+            return ResponseEntity.badRequest().body("New password and confirm password are required");
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            return ResponseEntity.badRequest().body("Passwords do not match");
+        }
+
+        if (newPassword.length() < 6) {
+            return ResponseEntity.badRequest().body("Password must be at least 6 characters long");
+        }
+
+        try {
+            if (otpService.verifyOtp(email.trim(), otp.trim())) {
+                userService.updatePassword(email.trim(), newPassword);
+                return ResponseEntity.ok("Password reset successfully");
+            } else {
+                return ResponseEntity.badRequest().body("Invalid or expired OTP");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Password reset failed: " + e.getMessage());
         }
     }
 }

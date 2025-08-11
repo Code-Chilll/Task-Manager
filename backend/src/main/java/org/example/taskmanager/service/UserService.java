@@ -137,6 +137,25 @@ public class UserService {
             throw new IllegalArgumentException("Invalid role: " + roleString);
         }
     }
+
+    public void updatePassword(String email, String newPassword) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+
+        if (newPassword == null || newPassword.isEmpty()) {
+            throw new IllegalArgumentException("New password is required");
+        }
+
+        User user = userRepository.findByEmail(email.trim().toLowerCase());
+        if (user == null) {
+            throw new NoSuchElementException("User not found");
+        }
+
+        // Hash the new password before saving
+        user.setPassword(passwordService.hashPassword(newPassword));
+        userRepository.save(user);
+    }
 }
 
 
